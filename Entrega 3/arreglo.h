@@ -15,7 +15,6 @@ class Arreglo{
   		int buscaMayor(); // Metodo que busca el piso mas alto solicitado
       	int buscaMenor(); // Metodo que busca el piso mas bajo solicitado
   		bool verifica(int piso); // Verifica si el piso está solicitado
-  		void elimina(int piso);
   		void solicitaPisos(int q); // añade q nuevos pisos al arreglo
         void muestra(); // SOLO DEPURACION
 };
@@ -48,11 +47,11 @@ int Arreglo::buscaMenor(){
 }
 
 bool Arreglo::verifica(int piso){
-    return (this->A)[piso];
-}
-
-void Arreglo::elimina(int piso){
-    (this->A)[piso] = false;
+    if((this->A)[piso]){
+        (this->A)[piso] = false;
+        return true;
+    }
+    return false;
 }
 
 void Arreglo::solicitaPisos(int q){

@@ -18,14 +18,16 @@ class BST{
   	private:
   		nodoBST *raiz;
         int n_pisos;
+        int n_nodos;
   
   	public:
+        int max_nodos;
+
   		BST(int m);
   
   		int buscaMayor();
   		int buscaMenor();
   		bool verifica(int piso);
-  		bool elimina(nodoBST **t, int piso);
   		void solicitaPisos(int q);
 
         void muestraPreOrden();
@@ -35,6 +37,8 @@ class BST{
 // Definicion de métodos
 
 BST::BST(int m){
+    this->n_nodos = 0;
+    this->max_nodos = 0;
     this->n_pisos = m;
     this->raiz = NULL; 
 }
@@ -79,8 +83,8 @@ bool BST::verifica(int piso){
         return false;
     
     // ELIMINACION
+    this->n_nodos--;
 
-    //return elimina(&(this->raiz), piso);
     // intercambio de nodos, en caso que haya un hijo null
     if(p->izq == nullptr){
         if(this->raiz == p) this->raiz = p->der;
@@ -119,43 +123,14 @@ bool BST::verifica(int piso){
     return true;
 }
 
-bool BST::elimina(nodoBST **t, int piso){
-    /* CON ESTE METODO BASTA PARA VERIFICAR Y ELIMINAR, PERO ES MUY LENTO */
-    if(*t == nullptr)
-		return false;
-	
-	nodoBST *p = *t;
-	if(p->piso == piso){
-		if(p->izq == nullptr){
-			// Hijo izq nulo
-			*t = p->der;
-			delete p;
-			return true;
-		}
-		if(p->der == nullptr){
-			// Hijo der nulo
-			*t = p->izq;
-			delete p;
-			return true;
-		}
-		nodoBST *q = p->der;
-        while(q->izq != nullptr)
-            q = q->izq;
-		p->piso = q->piso;
-		return elimina(&(p->der), q->piso);
-	}
-	if(piso < p->piso){
-		return elimina(&(p->izq), piso);
-	}
-	return elimina(&(p->der), piso);
-}
-
 void BST::solicitaPisos(int q){
+    // Esta es la funcion que probablemente usa la mayor cantidad de procesamiento
     int nuevoPiso;
     nodoBST *p, *s;
     for(int i = 0; i < q; i++){
         nuevoPiso = rand()%(this->n_pisos);
         if(this->raiz == nullptr){
+            if(this->n_nodos++ > this->max_nodos) this->max_nodos++;
             nodoBST *r = new nodoBST;
             r->piso = nuevoPiso;
             this->raiz = r;
@@ -170,6 +145,7 @@ void BST::solicitaPisos(int q){
                 p = p->izq;
         }
         if(p == nullptr){
+            if(this->n_nodos++ > this->max_nodos) this->max_nodos++;
             nodoBST *r = new nodoBST;
             r->piso = nuevoPiso;
             r->izq = r->der = NULL;

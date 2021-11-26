@@ -9,12 +9,11 @@ class Mapa{
         int n_pisos;
   
 	public:
-  		Mapa(int m);	//te crea el mapa supongo xd
+  		Mapa(int m);
   		
         int buscaMayor();
   		int buscaMenor();
   		bool verifica(int piso);
-  		void elimina(int piso);
   		void solicitaPisos(int q); 
         void muestra(); 
 };
@@ -42,11 +41,11 @@ int Mapa::buscaMenor(){
 }
 
 bool Mapa::verifica(int piso){
-    return (this->contenedor)[piso];
-}
-
-void Mapa::elimina(int piso){
-    (this->contenedor)[piso] = false;
+    if((this->contenedor)[piso]){
+        (this->contenedor)[piso] = false;
+        return true;
+    }
+    return false;
 }
 
 void Mapa::solicitaPisos(int q){

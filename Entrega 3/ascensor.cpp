@@ -7,25 +7,14 @@
 #include "arreglo.h"
 #include "BST.h"
 
+#define N_EXP 10
+
 using namespace std;
 
 
 void ascensorArreglo(Arreglo &arreglo, int n, int k);
 void ascensorBST(BST &bst, int n, int k);
 void ascensorMapa(Mapa &mapa, int n, int k);
-
-bool recorrerArreglo(Arreglo &arreglo, int n, int k); //recorre, se mantiene alternando entre subir y bajar
-int subirArreglo(int energy, Arreglo &arreglo, int *piso, int k); //sube, cada turno pide pisos, elimina encontrados, respeta energía faltante 
-int bajarArreglo(int energy, Arreglo &arreglo, int *piso, int k); //baja, cada turno pide pisos, elimina encontrados, respeta energía faltante
-
-bool recorrerBST(BST &bst, int n, int k); //recorre, se mantiene alternando entre subir y bajar
-int subirBST(int energy, BST &bst, int *piso, int k); //sube, cada turno pide pisos, elimina encontrados, respeta energía faltante 
-int bajarBST(int energy, BST &bst, int *piso, int k); //baja, cada turno pide pisos, elimina encontrados, respeta energía faltante
-
-bool recorrerMapa(Mapa &mapa, int n, int k); //recorre, se mantiene alternando entre subir y bajar
-int subirMapa(int energy, Mapa &mapa, int *piso, int k); //sube, cada turno pide pisos, elimina encontrados, respeta energía faltante 
-int bajarMapa(int energy, Mapa &mapa, int *piso, int k); //baja, cada turno pide pisos, elimina encontrados, respeta energía faltante
-
 
 
 int main(int argc, char **argv){
@@ -49,25 +38,25 @@ int main(int argc, char **argv){
     cout << " - Inicializando estructuras..." << endl;
     Arreglo arreglo(m);
     BST bst(m);
-    //Mapa mapa(m);
+    Mapa mapa(m);
 
     cout << "1) Experimento utilizando un arreglo..." << endl;
-    t=clock();
+    t = clock(); 
     ascensorArreglo(arreglo, n, k);
-  	t=clock()-t;
-    cout << "TIEMPO TRANSCURRIDO: " << float(t)/CLOCKS_PER_SEC << endl << endl;
+    cout << "TIEMPO TRANSCURRIDO: " << float(clock()-t)/CLOCKS_PER_SEC << " s" << endl;
+    cout << "MEMORIA UTILIZADA: " << sizeof(bool)*m << " bytes" << endl << endl;
 
     cout << "2) Experimento utilizando un BST..." << endl;
-    h=clock();
+    h = clock();
     ascensorBST(bst, n, k);
-  	h=clock()-h;
-    cout << "TIEMPO TRANSCURRIDO: " << float(h)/CLOCKS_PER_SEC << endl << endl;
+    cout << "TIEMPO TRANSCURRIDO: " << float(clock()-h)/CLOCKS_PER_SEC << " s" << endl;
+    cout << "MEMORIA UTILIZADA: " << (sizeof(int) + 2*sizeof(nodoBST*)) * bst.max_nodos << " bytes" << endl << endl;
 
     cout << "3) Experimento utilizando std::map..." << endl;
     j = clock();
-    //ascensorMapa(mapa, n, k);
-  	j = clock() - j;
-    cout << "TIEMPO TRANSCURRIDO: " << float(j)/CLOCKS_PER_SEC << endl << endl;
+    ascensorMapa(mapa, n, k);
+    cout << "TIEMPO TRANSCURRIDO: " << float(clock() - j)/CLOCKS_PER_SEC << " s" << endl;
+    cout << "MEMORIA UTILIZADA: " << (sizeof(int) + sizeof(bool) + sizeof(_Rb_tree_node_base))*m << " bytes" << endl << endl;
   
     return EXIT_SUCCESS;
 }
@@ -77,10 +66,38 @@ int main(int argc, char **argv){
 void ascensorArreglo(Arreglo &arreglo, int n, int k){
     // El ascensor comienza subiendo desde el piso 0
     int up, down, q, piso = 0;
-    bool direccion = true; // true: subiendo | false: bajando
+    bool direccion = true; // true: sube | false: baja <- funcionalidades del ascensor
 
     arreglo.solicitaPisos(k); // solicita los k pisos iniciales
+    //arreglo.muestra();
     up = arreglo.buscaMayor();
+    down = -1; // piso invalido
+    //cout << "Piso mayor: " << up << endl;
+
+    for(int iter = 0; iter < n; iter++){
+        //if(iter%10000 == 0) cout << "ITER " << iter << endl;
+        //cout << "Piso " << piso << endl;
+        if(arreglo.verifica(piso)){
+            //cout << "El piso " << piso << " fue solicitado y eliminado" << endl;
+            //arreglo.muestra();
+        }
+        q = rand()%(k+1); // Genera 0 <= q <= k nuevos requerimientos
+        arreglo.solicitaPisos(q);
+        //cout << q << " nuevos pisos solicitados" << endl;
+        //arreglo.muestra();
+
+        if(piso == up && direccion){ // se llego al piso mas alto solicitado up
+            down = arreglo.buscaMenor();
+            //cout << "Piso menor: " << down << endl;
+            direccion = !direccion;
+        }
+        else if(piso == down && !direccion){// se llego al piso mas bajo solicitado down
+            up = arreglo.buscaMayor();
+            //cout << "Piso mayor: " << up << endl;
+            direccion = !direccion;
+        }
+        direccion? piso++ : piso--; // iteracion completa: sube o baja dependiendo de su direccion
+    }
 }
 
 
@@ -96,6 +113,7 @@ void ascensorBST(BST &bst, int n, int k){
     //cout << "Piso mayor: " << up << endl;
 
     for(int iter = 0; iter < n; iter++){
+        cout << "\r" << "Iteracion "<< iter;
         //if(iter%10000 == 0) cout << "ITER " << iter << endl;
         //cout << "Piso " << piso << endl;
         if(bst.verifica(piso)){
@@ -119,16 +137,35 @@ void ascensorBST(BST &bst, int n, int k){
         }
         direccion? piso++ : piso--; // iteracion completa: sube o baja dependiendo de su direccion
     }
-
+    cout << endl;
 }
 
 void ascensorMapa(Mapa &mapa, int n, int k){
-    mapa.solicitaPisos(k);
-    mapa.muestra();
-    int down = mapa.buscaMenor();
-    cout << down << endl;
+    int up, down, q, piso = 0;
+    bool direccion = true;
 
-    mapa.verifica(down);
-    mapa.elimina(down);
-    mapa.muestra();
+    mapa.solicitaPisos(k);
+    up = mapa.buscaMayor();
+    down = -1;
+
+    for(int iter = 0; iter < n; iter++){
+        cout << "\r" << "["<< iter << " / " << n << "]";
+        mapa.verifica(piso);
+
+        q = rand()%(k+1);
+        mapa.solicitaPisos(q);
+
+        if(piso == up && direccion){ 
+            down = mapa.buscaMenor();
+            direccion = !direccion;
+        }
+        else if(piso == down && !direccion){
+            up = mapa.buscaMayor();
+            direccion = !direccion;
+        }
+        
+        direccion? piso++ : piso--;
+    }
+    cout << endl;
 }
+
