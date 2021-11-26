@@ -1,13 +1,9 @@
-#include <iostream>
-#include <cstdlib>
-#include <cmath>		
+#include <iostream>	
 #include <ctime>
 
 #include "mapa.h"
 #include "arreglo.h"
 #include "BST.h"
-
-#define N_EXP 10
 
 using namespace std;
 
