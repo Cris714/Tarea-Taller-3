@@ -113,7 +113,7 @@ void ascensorBST(BST &bst, int n, int k){
     //cout << "Piso mayor: " << up << endl;
 
     for(int iter = 0; iter < n; iter++){
-        cout << "\r" << "Iteracion "<< iter;
+        cout << "\r" << "["<< iter << " / " << n << "]";
         //if(iter%10000 == 0) cout << "ITER " << iter << endl;
         //cout << "Piso " << piso << endl;
         if(bst.verifica(piso)){
