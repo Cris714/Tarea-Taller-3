@@ -64,7 +64,7 @@ int BST::buscaMenor(){ // Similar a buscar mayor
 
 bool BST::verifica(int piso){
     /* Búsqueda y eliminacion del nodo que tenga el valor piso, usar recursividad
-    presenta resultados lentos y probablemente un AVL sea ineficiente.*/
+    presenta resultados lentos*/
 
     if(this->raiz == nullptr)
         return false;
